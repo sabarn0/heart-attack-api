@@ -1,0 +1,50 @@
+{
+    "model_type": "logistic_regression",
+    "hyperparameters": {
+        "learning_rate": null,
+        "n_estimators": null,
+        "subsample": null,
+        "max_depth": null,
+        "C": "1.0",
+        "penalty": "l1"
+    },
+    "training_date": "2026-07-10T04:09:36.354794+00:00",
+    "dataset_row_count": 303,
+    "metrics": {
+        "cv_f1_std": 0.02318280174994775,
+        "test_roc_auc": 0.9545454545454546,
+        "test_f1": 0.8620689655172413,
+        "cv_recall_std": 0.07505095208749404,
+        "cv_precision_std": 0.05908138009067659,
+        "test_accuracy": 0.8688524590163934,
+        "cv_roc_auc_mean": 0.9074051552312422,
+        "cv_recall_mean": 0.7920948616600791,
+        "test_precision": 0.8333333333333334,
+        "cv_accuracy_std": 0.01611478692183707,
+        "cv_precision_mean": 0.8553730158730157,
+        "cv_accuracy_mean": 0.8387755102040817,
+        "cv_roc_auc_std": 0.010282131149993113,
+        "test_recall": 0.8928571428571429,
+        "cv_f1_mean": 0.8172514909242429
+    },
+    "mlflow_run_id": "02fef5025e5e49e79c3357e4779bc7b0",
+    "feature_list": {
+        "numeric": [
+            "age",
+            "trestbps",
+            "chol",
+            "thalach",
+            "oldpeak"
+        ],
+        "categorical": [
+            "sex",
+            "cp",
+            "fbs",
+            "restecg",
+            "exang",
+            "slope",
+            "ca",
+            "thal"
+        ]
+    }
+}

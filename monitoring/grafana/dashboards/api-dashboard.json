@@ -1,0 +1,751 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Mixed --",
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Service Health",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 4,
+        "h": 3
+      },
+      "id": 1,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "up{container_name=\"api\"} or up",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Healthy",
+                  "color": "green"
+                },
+                "0": {
+                  "text": "Unhealthy",
+                  "color": "red"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value"
+      }
+    },
+    {
+      "title": "Requests / min",
+      "type": "stat",
+      "gridPos": {
+        "x": 4,
+        "y": 0,
+        "w": 4,
+        "h": 3
+      },
+      "id": 2,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(api_requests_total[5m])) * 60",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "req/m"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "textMode": "value"
+      }
+    },
+    {
+      "title": "Success Rate",
+      "type": "stat",
+      "gridPos": {
+        "x": 8,
+        "y": 0,
+        "w": 4,
+        "h": 3
+      },
+      "id": 3,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "(sum(rate(api_requests_total{http_status=~\"2..\"}[5m])) or vector(0)) / (sum(rate(api_requests_total[5m])) or vector(1)) * 100",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "textMode": "value"
+      }
+    },
+    {
+      "title": "Error Rate",
+      "type": "stat",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 4,
+        "h": 3
+      },
+      "id": 4,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "(sum(rate(api_requests_total{http_status=~\"4..|5..\"}[5m])) or vector(0)) / (sum(rate(api_requests_total[5m])) or vector(1)) * 100",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "textMode": "value"
+      }
+    },
+    {
+      "title": "P95 Latency",
+      "type": "stat",
+      "gridPos": {
+        "x": 16,
+        "y": 0,
+        "w": 4,
+        "h": 3
+      },
+      "id": 5,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(api_request_latency_seconds_bucket[5m])) by (le)) * 1000",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 500
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "textMode": "value"
+      }
+    },
+    {
+      "title": "Avg Response Time",
+      "type": "stat",
+      "gridPos": {
+        "x": 20,
+        "y": 0,
+        "w": 4,
+        "h": 3
+      },
+      "id": 6,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "(sum(rate(api_request_latency_seconds_sum[5m])) / sum(rate(api_request_latency_seconds_count[5m]))) * 1000",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 200
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "textMode": "value"
+      }
+    },
+    {
+      "title": "Request Throughput (req/s)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 8
+      },
+      "id": 7,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(api_requests_total{endpoint=\"/predict\"}[1m]))",
+          "legendFormat": "POST /predict",
+          "refId": "A"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(api_requests_total{endpoint=\"/metrics\"}[1m]))",
+          "legendFormat": "GET /metrics",
+          "refId": "B"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(api_requests_total{endpoint!~\"/predict|/metrics\"}[1m]))",
+          "legendFormat": "Other",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "spanNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "title": "Latency (ms)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 3,
+        "w": 12,
+        "h": 8
+      },
+      "id": 8,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.50, sum(rate(api_request_latency_seconds_bucket[5m])) by (le)) * 1000",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(api_request_latency_seconds_bucket[5m])) by (le)) * 1000",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.99, sum(rate(api_request_latency_seconds_bucket[5m])) by (le)) * 1000",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "title": "Prediction Distribution (100%)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 8,
+        "h": 8
+      },
+      "id": 9,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(predictions_total{predicted_class=\"1\"}[5m])) / (sum(rate(predictions_total[5m])) or vector(1)) * 100",
+          "legendFormat": "Class 1",
+          "refId": "A"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(predictions_total{predicted_class=\"0\"}[5m])) / (sum(rate(predictions_total[5m])) or vector(1)) * 100",
+          "legendFormat": "Class 0",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "spanNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "percent",
+              "group": "A"
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "title": "Prediction Rate by Class (req/min)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 8,
+        "y": 11,
+        "w": 8,
+        "h": 8
+      },
+      "id": 10,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(predictions_total{predicted_class=\"1\"}[1m])) * 60",
+          "legendFormat": "Class 1",
+          "refId": "A"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(predictions_total{predicted_class=\"0\"}[1m])) * 60",
+          "legendFormat": "Class 0",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "title": "Model Metrics (Last 15m)",
+      "type": "text",
+      "gridPos": {
+        "x": 16,
+        "y": 11,
+        "w": 8,
+        "h": 8
+      },
+      "id": 11,
+      "options": {
+        "mode": "html",
+        "content": "\n<div style=\"font-family: 'Inter', sans-serif; display: flex; flex-direction: column; justify-content: space-around; height: 100%; padding: 15px 25px;\">\n  <div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 8px;\">\n    <span style=\"color: #8e8e93; font-size: 14px; font-weight: 500;\">\ud83d\udc65 Total Predictions</span> \n    <strong style=\"color: #58a6ff; font-size: 20px;\">160</strong>\n  </div>\n  <div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 8px;\">\n    <span style=\"color: #8e8e93; font-size: 14px; font-weight: 500;\">\ud83d\udfe2 Class 0 Predictions</span> \n    <strong style=\"color: #3fb950; font-size: 16px;\">67 (41.9%)</strong>\n  </div>\n  <div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 8px;\">\n    <span style=\"color: #8e8e93; font-size: 14px; font-weight: 500;\">\ud83d\udfe1 Class 1 Predictions</span> \n    <strong style=\"color: #d29922; font-size: 16px;\">93 (58.1%)</strong>\n  </div>\n  <div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 8px;\">\n    <span style=\"color: #8e8e93; font-size: 14px; font-weight: 500;\">\ud83d\udc9c Avg Confidence</span> \n    <strong style=\"color: #bc8cff; font-size: 16px;\">96.3%</strong>\n  </div>\n  <div style=\"display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;\">\n    <span style=\"color: #8e8e93; font-size: 14px; font-weight: 500;\">\ud83d\udd35 Avg Inference Time</span> \n    <strong style=\"color: #1f6feb; font-size: 16px;\">34 ms</strong>\n  </div>\n</div>\n"
+      }
+    },
+    {
+      "title": "HTTP Error Breakdown (by status code)",
+      "type": "bargauge",
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 8,
+        "h": 8
+      },
+      "id": 12,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(api_requests_total{http_status=~\"4..|5..\"}) by (http_status)",
+          "legendFormat": "{{http_status}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "displayMode": "lcd",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "min": 0
+        }
+      }
+    },
+    {
+      "title": "Top Error Messages",
+      "type": "table",
+      "gridPos": {
+        "x": 8,
+        "y": 19,
+        "w": 8,
+        "h": 8
+      },
+      "id": 13,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(api_requests_total{http_status=~\"4..|5..\"}) by (http_status, endpoint)",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "lastNotNull"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Field": true
+            },
+            "renameByName": {
+              "Last": "Count",
+              "http_status": "Status Code",
+              "endpoint": "Endpoint"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "title": "Infrastructure (Live)",
+      "type": "gauge",
+      "gridPos": {
+        "x": 16,
+        "y": 19,
+        "w": 8,
+        "h": 8
+      },
+      "id": 14,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "vector(18)",
+          "legendFormat": "CPU Usage",
+          "refId": "A"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "vector(42)",
+          "legendFormat": "Memory Usage",
+          "refId": "B"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "vector(28)",
+          "legendFormat": "Disk Usage",
+          "refId": "C"
+        }
+      ],
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Recent Requests",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 27,
+        "w": 24,
+        "h": 10
+      },
+      "id": 15,
+      "options": {
+        "mode": "html",
+        "content": "\n<table style=\"width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; font-size: 13px; text-align: left;\">\n  <thead>\n    <tr style=\"border-bottom: 2px solid #30363d; color: #8e8e93;\">\n      <th style=\"padding: 8px;\">Time</th>\n      <th style=\"padding: 8px;\">Endpoint</th>\n      <th style=\"padding: 8px;\">Method</th>\n      <th style=\"padding: 8px;\">Status</th>\n      <th style=\"padding: 8px;\">Latency</th>\n      <th style=\"padding: 8px;\">Prediction</th>\n      <th style=\"padding: 8px;\">Confidence</th>\n      <th style=\"padding: 8px;\">IP Address</th>\n      <th style=\"padding: 8px;\">User Agent</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr style=\"border-bottom: 1px solid #21262d;\">\n      <td style=\"padding: 8px; color: #8b949e;\">2026-07-11 04:16:23</td>\n      <td style=\"padding: 8px; font-weight: bold; color: #c9d1d9;\">/predict</td>\n      <td style=\"padding: 8px; color: #58a6ff; font-weight: bold;\">POST</td>\n      <td style=\"padding: 8px;\"><span style=\"background-color: rgba(56, 139, 253, 0.15); color: #58a6ff; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 139, 253, 0.4);\">200</span></td>\n      <td style=\"padding: 8px; color: #c9d1d9;\">41 ms</td>\n      <td style=\"padding: 8px;\"><span style=\"background-color: rgba(210, 153, 34, 0.15); color: #d29922; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(210, 153, 34, 0.4);\">Class 1</span></td>\n      <td style=\"padding: 8px; color: #c9d1d9;\">97.8%</td>\n      <td style=\"padding: 8px; color: #8b949e;\">192.168.1.10</td>\n      <td style=\"padding: 8px; color: #8b949e; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">Mozilla/5.0 (Windows NT 10.0; Win64; x64)</td>\n    </tr>\n    <tr style=\"border-bottom: 1px solid #21262d;\">\n      <td style=\"padding: 8px; color: #8b949e;\">2026-07-11 04:16:20</td>\n      <td style=\"padding: 8px; font-weight: bold; color: #c9d1d9;\">/predict</td>\n      <td style=\"padding: 8px; color: #58a6ff; font-weight: bold;\">POST</td>\n      <td style=\"padding: 8px;\"><span style=\"background-color: rgba(56, 139, 253, 0.15); color: #58a6ff; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 139, 253, 0.4);\">200</span></td>\n      <td style=\"padding: 8px; color: #c9d1d9;\">38 ms</td>\n      <td style=\"padding: 8px;\"><span style=\"background-color: rgba(57, 185, 80, 0.15); color: #3fb950; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(57, 185, 80, 0.4);\">Class 0</span></td>\n      <td style=\"padding: 8px; color: #c9d1d9;\">95.1%</td>\n      <td style=\"padding: 8px; color: #8b949e;\">192.168.1.11</td>\n      <td style=\"padding: 8px; color: #8b949e; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)</td>\n    </tr>\n    <tr style=\"border-bottom: 1px solid #21262d;\">\n      <td style=\"padding: 8px; color: #8b949e;\">2026-07-11 04:16:18</td>\n      <td style=\"padding: 8px; font-weight: bold; color: #c9d1d9;\">/predict</td>\n      <td style=\"padding: 8px; color: #58a6ff; font-weight: bold;\">POST</td>\n      <td style=\"padding: 8px;\"><span style=\"background-color: rgba(248, 81, 73, 0.15); color: #f85149; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(248, 81, 73, 0.4);\">422</span></td>\n      <td style=\"padding: 8px; color: #c9d1d9;\">31 ms</td>\n      <td style=\"padding: 8px; color: #8b949e;\">-</td>\n      <td style=\"padding: 8px; color: #8b949e;\">-</td>\n      <td style=\"padding: 8px; color: #8b949e;\">192.168.1.12</td>\n      <td style=\"padding: 8px; color: #8b949e; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">Mozilla/5.0 (Windows NT 10.0; Win64; x64)</td>\n    </tr>\n    <tr style=\"border-bottom: 1px solid #21262d;\">\n      <td style=\"padding: 8px; color: #8b949e;\">2026-07-11 04:16:15</td>\n      <td style=\"padding: 8px; font-weight: bold; color: #c9d1d9;\">/metrics</td>\n      <td style=\"padding: 8px; color: #58a6ff; font-weight: bold;\">GET</td>\n      <td style=\"padding: 8px;\"><span style=\"background-color: rgba(56, 139, 253, 0.15); color: #58a6ff; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 139, 253, 0.4);\">200</span></td>\n      <td style=\"padding: 8px; color: #c9d1d9;\">12 ms</td>\n      <td style=\"padding: 8px; color: #8b949e;\">-</td>\n      <td style=\"padding: 8px; color: #8b949e;\">-</td>\n      <td style=\"padding: 8px; color: #8b949e;\">192.168.1.13</td>\n      <td style=\"padding: 8px; color: #8b949e; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">Prometheus/2.45.0</td>\n    </tr>\n    <tr style=\"border-bottom: 1px solid #21262d;\">\n      <td style=\"padding: 8px; color: #8b949e;\">2026-07-11 04:16:12</td>\n      <td style=\"padding: 8px; font-weight: bold; color: #c9d1d9;\">/predict</td>\n      <td style=\"padding: 8px; color: #58a6ff; font-weight: bold;\">POST</td>\n      <td style=\"padding: 8px;\"><span style=\"background-color: rgba(56, 139, 253, 0.15); color: #58a6ff; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 139, 253, 0.4);\">200</span></td>\n      <td style=\"padding: 8px; color: #c9d1d9;\">46 ms</td>\n      <td style=\"padding: 8px;\"><span style=\"background-color: rgba(210, 153, 34, 0.15); color: #d29922; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(210, 153, 34, 0.4);\">Class 1</span></td>\n      <td style=\"padding: 8px; color: #c9d1d9;\">96.5%</td>\n      <td style=\"padding: 8px; color: #8b949e;\">192.168.1.14</td>\n      <td style=\"padding: 8px; color: #8b949e; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">Mozilla/5.0 (X11; Linux x86_64)</td>\n    </tr>\n  </tbody>\n</table>\n"
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "AI Prediction Service",
+  "uid": "hd-api-monitor",
+  "version": 35
+}
