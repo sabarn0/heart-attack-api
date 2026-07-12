@@ -1,0 +1,70 @@
+name: Model Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/heart_disease/**"
+      - "run_experiments.py"
+  workflow_dispatch: {}
+
+concurrency:
+  group: model-pipeline
+  cancel-in-progress: true
+
+jobs:
+  train-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      # Use the PAT for checkout so the later push is authenticated as a
+      # real user/token that CAN trigger downstream workflows — checking
+      # out with GITHUB_TOKEN by default here is fine, but the PUSH step
+      # below must explicitly use GH_PAT.
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run model unit tests
+        run: pytest tests/test_features.py tests/test_train.py -v
+
+      - name: Train, compare, and package
+        run: python run_experiments.py
+
+      - name: Upload MLflow artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mlflow-runs-${{ github.sha }}
+          path: |
+            mlruns/
+            models/production/comparison.md
+
+      - name: Commit packaged model back to main
+        run: |
+          git config user.name "model-pipeline-bot"
+          git config user.email "actions@github.com"
+          git add models/production/model.pkl models/production/model_card.json models/production/comparison.md
+          if git diff --cached --quiet; then
+            echo "No changes to packaged model, skipping commit."
+          else
+            git commit -m "chore(model): update packaged model [run ${{ github.run_id }}]"
+            # IMPORTANT: push using GH_PAT, not the default GITHUB_TOKEN —
+            # GITHUB_TOKEN pushes do not trigger other workflows, which
+            # would silently break the trigger into api-pipeline.yml.
+            git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git HEAD:main
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Model pipeline complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: \`${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- See models/production/comparison.md for selected model" >> "$GITHUB_STEP_SUMMARY"
