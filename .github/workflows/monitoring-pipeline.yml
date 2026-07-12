@@ -23,18 +23,19 @@ jobs:
           SSH_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
           echo "$SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_rsa ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy monitoring to VM
         run: |
-          ssh -i ~/.ssh/id_ed25519 "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
+          ssh -i ~/.ssh/id_rsa -i ~/.ssh/id_ed25519 "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
             "cd /home/sus/mlops && ./scripts/deploy-monitoring.sh"
 
       - name: Verify volumes untouched
         run: |
-          ssh -i ~/.ssh/id_ed25519 "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
+          ssh -i ~/.ssh/id_rsa -i ~/.ssh/id_ed25519 "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
             "docker volume ls | grep -E 'prometheus_data|grafana_data'"
 
       - name: Summary
