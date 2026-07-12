@@ -1,4 +1,4 @@
-# Heart Disease Classifier Web Stack
+# Heart Disease Classifier API
 
 This project exposes the Heart Disease prediction model through a FastAPI service and sets up monitoring/observability using Prometheus and Grafana.
 
